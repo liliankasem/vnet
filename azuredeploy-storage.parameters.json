@@ -13,15 +13,6 @@
     },
     "prmStorageType": {
       "value": "Premium_LRS"
-    },
-    "sqlServerPrimaryName": {
-      "value": "GEN-UNIQUE"
-    },
-    "sqlServerPrimaryAdminUsername": {
-      "value": "GEN-UNIQUE"
-    },
-    "sqlServerPrimaryAdminPassword": {
-      "value": "GEN-PASSWORD"
     }
   }
 }
