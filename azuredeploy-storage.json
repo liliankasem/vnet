@@ -1,0 +1,116 @@
+﻿{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "stdStorageName": {
+      "type": "string",
+      "defaultValue": "testvnetstoragestd",
+      "metadata": {
+        "description": "Name for simple storage account."
+      }
+    },
+    "stdStorageType": {
+      "type": "string",
+      "defaultValue": "Standard_LRS",
+      "allowedValues": [
+        "Standard_LRS",
+        "Standard_GRS",
+        "Standard_ZRS"
+      ]
+    },
+    "prmStorageName": {
+      "type": "string",
+      "defaultValue": "testvnetstorageprm",
+      "metadata": {
+        "description": "Name for simple storage account."
+      }
+    },
+    "prmStorageType": {
+      "type": "string",
+      "defaultValue": "Premium_LRS",
+      "allowedValues": [
+        "Premium_LRS",
+        "Premium_GRS",
+        "Premium_ZRS"
+      ]
+    },
+    "sqlServerPrimaryName": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the primary SQL Server."
+      }
+    },
+    "sqlServerPrimaryAdminUsername": {
+      "type": "string",
+      "metadata": {
+        "description": "The administrator username of the primary SQL Server."
+      }
+    },
+    "sqlServerPrimaryAdminPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "The administrator password of the primary SQL Server."
+      }
+    }
+  },
+  "variables": {
+    "sqlDatabaseName": "MyData",
+    "sqlDatabaseServiceObjective": "Basic",
+    "sqlDatabaseEdition": "Basic"
+},
+  "resources": [{
+      "name": "[parameters('stdStorageName')]",
+      "type": "Microsoft.Storage/storageAccounts",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2015-05-01-preview",
+      "dependsOn": [],
+      "tags": {
+        "displayName": "Storage Account - Simple"
+      },
+      "properties": {
+        "accountType": "[parameters('stdStorageType')]"
+      }
+    },
+    {
+      "name": "[parameters('prmStorageName')]",
+      "type": "Microsoft.Storage/storageAccounts",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2015-05-01-preview",
+      "dependsOn": [],
+      "tags": {
+        "displayName": "Storage Account - Premium"
+      },
+      "properties": {
+        "accountType": "[parameters('prmStorageType')]"
+      }
+    },
+    {
+      "type": "Microsoft.Sql/servers",
+      "kind": "v12.0",
+      "name": "[parameters('sqlServerPrimaryName')]",
+      "apiVersion": "2014-04-01",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "administratorLogin": "[parameters('sqlServerPrimaryAdminUsername')]",
+        "administratorLoginPassword": "[parameters('sqlServerPrimaryAdminPassword')]",
+        "version": "12.0"
+      },
+      "dependsOn": [
+        "[concat('Microsoft.Network/virtualNetworks/', parameters('vnetName'))]"
+      ],
+      "resources": [{
+        "name": "[variables('sqlDatabaseName')]",
+        "type": "databases",
+        "apiVersion": "2014-04-01",
+        "location": "[resourceGroup().location]",
+        "dependsOn": [
+          "[parameters('sqlServerPrimaryName')]"
+        ],
+        "properties": {
+          "edition": "[variables('sqlDatabaseEdition')]",
+          "requestedServiceObjectiveName": "[variables('sqlDatabaseServiceObjective')]"
+        }
+      }]
+    }
+  ]
+}

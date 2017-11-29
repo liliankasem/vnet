@@ -1,0 +1,330 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "sqlServerPrimaryName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the primary SQL Server."
+            }
+        },
+        "sqlServerPrimaryAdminUsername": {
+            "type": "string",
+            "metadata": {
+                "description": "The administrator username of the primary SQL Server."
+            }
+        },
+        "sqlServerPrimaryAdminPassword": {
+            "type": "securestring",
+            "metadata": {
+                "description": "The administrator password of the primary SQL Server."
+            }
+        },
+        "vnetName": {
+            "type": "string",
+            "defaultValue": "VNet1",
+            "metadata": {
+                "description": "VNet name"
+            }
+        },
+        "vnetAddressPrefix": {
+            "type": "string",
+            "defaultValue": "10.0.0.0/16",
+            "metadata": {
+                "description": "Address prefix"
+            }
+        },
+        "subnet1Prefix": {
+            "type": "string",
+            "defaultValue": "10.0.0.0/24",
+            "metadata": {
+                "description": "Subnet 1 Prefix"
+            }
+        },
+        "subnet1Name": {
+            "type": "string",
+            "defaultValue": "Security",
+            "metadata": {
+                "description": "Subnet 1 Name"
+            }
+        },
+        "subnet2Prefix": {
+            "type": "string",
+            "defaultValue": "10.0.0.0/24",
+            "metadata": {
+                "description": "Subnet 2 Prefix"
+            }
+        },
+        "subnet2Name": {
+            "type": "string",
+            "defaultValue": "FrontEnd",
+            "metadata": {
+                "description": "Subnet 2 Name"
+            }
+        },
+        "subnet3Prefix": {
+            "type": "string",
+            "defaultValue": "10.0.0.0/24",
+            "metadata": {
+                "description": "Subnet 3 Prefix"
+            }
+        },
+        "subnet3Name": {
+            "type": "string",
+            "defaultValue": "BackEnd",
+            "metadata": {
+                "description": "Subnet 3 Name"
+            }
+        },
+        "securityNSGName": {
+            "type": "string",
+            "defaultValue": "SecurityNSG",
+            "metadata": {
+                "description": "Security NSG Name"
+            }
+        },
+        "frontEndNSGName": {
+            "type": "string",
+            "defaultValue": "FrontEndNSG",
+            "metadata": {
+                "description": "Front end NSG Name"
+            }
+        },
+        "backEndNSGName": {
+            "type": "string",
+            "defaultValue": "BackEndNSG",
+            "metadata": {
+                "description": "Back end NSG Name"
+            }
+        }
+    },
+    "variables": {
+        "sqlDatabaseName": "MyData",
+        "sqlDatabaseServiceObjective": "Basic",
+        "sqlDatabaseEdition": "Basic",
+        "sqlApiVersion": "2014-04-01",
+        "vnetApiVersion": "2017-06-01"
+    },
+    "resources": [{
+            "apiVersion": "2017-06-01",
+            "type": "Microsoft.Network/virtualNetworks",
+            "name": "[parameters('vnetName')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "[parameters('vnetAddressPrefix')]"
+                    ]
+                },
+                "subnets": [{
+                        "name": "[parameters('subnet1Name')]",
+                        "properties": {
+                            "addressPrefix": "[parameters('subnet1Prefix')]"
+                        },
+                        "networkSecurityGroup": {
+                            "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('securityNSGName'))]"
+                        }
+                    },
+                    {
+                        "name": "[parameters('subnet2Name')]",
+                        "properties": {
+                            "addressPrefix": "[parameters('subnet2Prefix')]"
+                        },
+                        "networkSecurityGroup": {
+                            "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('frontEndNSGName'))]"
+                        }
+                    },
+                    {
+                        "name": "[parameters('subnet3Name')]",
+                        "properties": {
+                            "addressPrefix": "[parameters('subnet3Prefix')]"
+                        },
+                        "networkSecurityGroup": {
+                            "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('backEndNSGName'))]"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "apiVersion": "2015-06-15",
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "name": "[parameters('securityNSGName')]",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "displayName": "NSG - Security"
+            },
+            "properties": {
+                "securityRules": [{
+                        "name": "rdp-rule",
+                        "properties": {
+                            "description": "Allow RDP",
+                            "protocol": "Tcp",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "3389",
+                            "sourceAddressPrefix": "Internet",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 100,
+                            "direction": "Inbound"
+                        }
+                    },
+                    {
+                        "name": "web-rule",
+                        "properties": {
+                            "description": "Allow WEB",
+                            "protocol": "Tcp",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "80",
+                            "sourceAddressPrefix": "Internet",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 101,
+                            "direction": "Inbound"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "apiVersion": "2015-06-15",
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "name": "[parameters('frontEndNSGName')]",
+            "location": "[resourceGroup().location]",
+            "tags": {
+              "displayName": "NSG - Front End"
+            },
+            "properties": {
+              "securityRules": [
+                {
+                  "name": "rdp-rule",
+                  "properties": {
+                    "description": "Allow RDP",
+                    "protocol": "Tcp",
+                    "sourcePortRange": "*",
+                    "destinationPortRange": "3389",
+                    "sourceAddressPrefix": "Internet",
+                    "destinationAddressPrefix": "*",
+                    "access": "Allow",
+                    "priority": 100,
+                    "direction": "Inbound"
+                  }
+                },
+                {
+                  "name": "http-rule",
+                  "properties": {
+                    "description": "Allow HTTP",
+                    "protocol": "Tcp",
+                    "sourcePortRange": "*",
+                    "destinationPortRange": "80",
+                    "sourceAddressPrefix": "Internet",
+                    "destinationAddressPrefix": "*",
+                    "access": "Allow",
+                    "priority": 101,
+                    "direction": "Inbound"
+                  }
+                },
+                {
+                  "name": "https-rule",
+                  "properties": {
+                    "description": "Allow HTTPS",
+                    "protocol": "Tcp",
+                    "sourcePortRange": "*",
+                    "destinationPortRange": "443",
+                    "sourceAddressPrefix": "Internet",
+                    "destinationAddressPrefix": "*",
+                    "access": "Allow",
+                    "priority": 102,
+                    "direction": "Inbound"
+                  }
+                }
+              ]
+            }
+          },
+        {
+            "apiVersion": "2015-06-15",
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "name": "[parameters('backEndNSGName')]",
+            "location": "[resourceGroup().location]",
+            "tags": {
+              "displayName": "NSG - Remote Access"
+            },
+            "properties": {
+              "securityRules": [
+                {
+                  "name": "allow-frontend",
+                  "properties": {
+                    "description": "Allow FE Subnet",
+                    "protocol": "Tcp",
+                    "sourcePortRange": "*",
+                    "destinationPortRange": "1433",
+                    "sourceAddressPrefix": "[parameters('frontEndSubnetPrefix')]",
+                    "destinationAddressPrefix": "*",
+                    "access": "Allow",
+                    "priority": 100,
+                    "direction": "Inbound"
+                  }
+                },
+                {
+                  "name": "rdp-rule",
+                  "properties": {
+                    "description": "Allow RDP",
+                    "protocol": "Tcp",
+                    "sourcePortRange": "*",
+                    "destinationPortRange": "3389",
+                    "sourceAddressPrefix": "Internet",
+                    "destinationAddressPrefix": "*",
+                    "access": "Allow",
+                    "priority": 200,
+                    "direction": "Inbound"
+                  }
+                },
+                {
+                  "name": "block-internet",
+                  "properties": {
+                    "description": "Block Internet",
+                    "protocol": "*",
+                    "sourcePortRange": "*",
+                    "destinationPortRange": "*",
+                    "sourceAddressPrefix": "*",
+                    "destinationAddressPrefix": "Internet",
+                    "access": "Deny",
+                    "priority": 100,
+                    "direction": "Outbound"
+                  }
+                }
+      
+              ]
+            }
+          },
+        {
+            "type": "Microsoft.Sql/servers",
+            "kind": "v12.0",
+            "name": "[parameters('sqlServerPrimaryName')]",
+            "apiVersion": "2014-04-01",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "administratorLogin": "[parameters('sqlServerPrimaryAdminUsername')]",
+                "administratorLoginPassword": "[parameters('sqlServerPrimaryAdminPassword')]",
+                "version": "12.0"
+            },
+            "dependsOn": [
+                "[concat('Microsoft.Network/virtualNetworks/', parameters('vnetName'))]"
+            ],
+            "resources": [{
+                "name": "[variables('sqlDatabaseName')]",
+                "type": "databases",
+                "apiVersion": "2014-04-01",
+                "location": "[resourceGroup().location]",
+                "dependsOn": [
+                    "[parameters('sqlServerPrimaryName')]"
+                ],
+                "properties": {
+                    "edition": "[variables('sqlDatabaseEdition')]",
+                    "requestedServiceObjectiveName": "[variables('sqlDatabaseServiceObjective')]"
+                }
+            }]
+        }
+    ],
+    "outputs": {}
+}
