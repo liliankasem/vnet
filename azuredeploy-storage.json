@@ -2,13 +2,30 @@
   "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "storageName": {
+    "stdStorageName": {
       "type": "string",
+      "defaultValue": "gigglesstorage93",
       "metadata": {
         "description": "Name for simple storage account."
       }
     },
-    "storageType": {
+    "stdStorageType": {
+      "type": "string",
+      "defaultValue": "Standard_LRS",
+      "allowedValues": [
+        "Standard_LRS",
+        "Standard_GRS",
+        "Standard_ZRS"
+      ]
+    },
+    "prmStorageName": {
+      "type": "string",
+      "defaultValue": "gigglesstorage93prm",
+      "metadata": {
+        "description": "Name for simple storage account."
+      }
+    },
+    "prmStorageType": {
       "type": "string",
       "defaultValue": "Premium_LRS",
       "allowedValues": [
@@ -18,18 +35,30 @@
       ]
     }
   },
-  "resources": [
-    {
-      "name": "[parameters('storageName')]",
+  "resources": [{
+      "name": "[parameters('stdStorageName')]",
       "type": "Microsoft.Storage/storageAccounts",
       "location": "[resourceGroup().location]",
       "apiVersion": "2015-05-01-preview",
       "dependsOn": [],
       "tags": {
-        "displayName": "Storage Account"
+        "displayName": "Storage Account - Simple"
       },
       "properties": {
-        "accountType": "[parameters('storageType')]"
+        "accountType": "[parameters('stdStorageType')]"
+      }
+    },
+    {
+      "name": "[parameters('prmStorageName')]",
+      "type": "Microsoft.Storage/storageAccounts",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2015-05-01-preview",
+      "dependsOn": [],
+      "tags": {
+        "displayName": "Storage Account - Premium"
+      },
+      "properties": {
+        "accountType": "[parameters('prmStorageType')]"
       }
     }
   ]

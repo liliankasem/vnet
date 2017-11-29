@@ -93,10 +93,42 @@
         "description": "Name for the NSG used to allow RDP, SQL, and block Internet"
       }
     },
-    "storageName": {
+    "stdStorageName": {
       "type": "string",
+      "defaultValue": "gigglesstorage93",
       "metadata": {
         "description": "Name for simple storage account."
+      }
+    },
+    "stdStorageType": {
+      "type": "string",
+      "defaultValue": "Standard_LRS",
+      "allowedValues": [
+        "Standard_LRS",
+        "Standard_GRS",
+        "Standard_ZRS"
+      ],
+      "metadata": {
+        "description": "Storage type."
+      }
+    },
+    "prmStorageName": {
+      "type": "string",
+      "defaultValue": "gigglesstorage93prm",
+      "metadata": {
+        "description": "Name for simple storage account."
+      }
+    },
+    "prmStorageType": {
+      "type": "string",
+      "defaultValue": "Premium_LRS",
+      "allowedValues": [
+        "Premium_LRS",
+        "Premium_GRS",
+        "Premium_ZRS"
+      ],
+      "metadata": {
+        "description": "Storage type."
       }
     },
     "vmaIpAddress": {
@@ -387,6 +419,114 @@
     },
     {
       "apiVersion": "2015-06-15",
+      "name": "[concat(variables('fwVMSettings').vmName,copyindex(1))]",
+      "type": "Microsoft.Compute/virtualMachines",
+      "location": "[variables('location')]",
+      "copy": {
+        "name": "fwvmcount",
+        "count": "[parameters('fwCount')]"
+      },
+      "dependsOn": [
+        "[concat('Microsoft.Network/networkInterfaces/', variables('fwVMSettings').nicName, copyindex(1))]",
+        "[concat('Microsoft.Compute/availabilitySets/', variables('fwVMSettings').avsetName)]",
+        "[concat('Microsoft.Resources/deployments/', 'storageTemplate')]"
+      ],
+      "tags": {
+        "displayName": "VMs - DMZ"
+      },
+      "properties": {
+        "availabilitySet": {
+          "id": "[resourceId('Microsoft.Compute/availabilitySets', variables('fwVMSettings').avsetName)]"
+        },
+        "hardwareProfile": {
+          "vmSize": "[variables('fwVMSettings').vmSize]"
+        },
+        "osProfile": {
+          "computerName": "[concat(variables('fwVMSettings').vmName,copyindex(1))]",
+          "adminUsername": "[variables('fwVMSettings').adminUsername]",
+          "adminPassword": "[variables('fwVMSettings').adminPassword]"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "[variables('fwVMSettings').publisher]",
+            "offer": "[variables('fwVMSettings').offer]",
+            "sku": "[variables('fwVMSettings').sku]",
+            "version": "[variables('fwVMSettings').version]"
+          },
+          "osDisk": {
+            "name": "[concat(variables('fwVMSettings').osdisk,copyindex(1))]",
+            "vhd": {
+              "uri": "[concat('http://', parameters('stdStorageName'), '.blob.core.windows.net/', variables('vmStorageAccountContainerName'), '/', variables('fwVMSettings').osdisk, copyindex(1),'.vhd')]"
+            },
+            "caching": "ReadWrite",
+            "createOption": "FromImage"
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('fwVMSettings').nicName,copyindex(1)))]"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "apiVersion": "2015-06-15",
+      "name": "[concat(variables('webVMSettings').vmName,copyindex(1))]",
+      "type": "Microsoft.Compute/virtualMachines",
+      "location": "[variables('location')]",
+      "copy": {
+        "name": "webvmcount",
+        "count": "[parameters('webCount')]"
+      },
+      "dependsOn": [
+        "[concat('Microsoft.Network/networkInterfaces/', variables('webVMSettings').nicName, copyindex(1))]",
+        "[concat('Microsoft.Compute/availabilitySets/', variables('webVMSettings').avsetName)]",
+        "[concat('Microsoft.Resources/deployments/', 'storageTemplate')]"
+      ],
+      "tags": {
+        "displayName": "VMs - Web"
+      },
+      "properties": {
+        "availabilitySet": {
+          "id": "[resourceId('Microsoft.Compute/availabilitySets', variables('webVMSettings').avsetName)]"
+        },
+        "hardwareProfile": {
+          "vmSize": "[variables('webVMSettings').vmSize]"
+        },
+        "osProfile": {
+          "computerName": "[concat(variables('webVMSettings').vmName,copyindex(1))]",
+          "adminUsername": "[variables('webVMSettings').adminUsername]",
+          "adminPassword": "[variables('webVMSettings').adminPassword]"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "[variables('webVMSettings').publisher]",
+            "offer": "[variables('webVMSettings').offer]",
+            "sku": "[variables('webVMSettings').sku]",
+            "version": "[variables('webVMSettings').version]"
+          },
+          "osDisk": {
+            "name": "[concat(variables('webVMSettings').osdisk,copyindex(1))]",
+            "vhd": {
+              "uri": "[concat('http://', parameters('stdStorageName'), '.blob.core.windows.net/', variables('vmStorageAccountContainerName'), '/', variables('webVMSettings').osdisk, copyindex(1),'.vhd')]"
+            },
+            "caching": "ReadWrite",
+            "createOption": "FromImage"
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('webVMSettings').nicName,copyindex(1)))]"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "apiVersion": "2015-06-15",
       "name": "[concat(variables('sqlVMSettings').vmName,copyindex(1))]",
       "type": "Microsoft.Compute/virtualMachines",
       "location": "[variables('location')]",
@@ -424,7 +564,7 @@
           "osDisk": {
             "name": "[concat(variables('sqlVMSettings').osdisk,copyindex(1))]",
             "vhd": {
-              "uri": "[concat('http://', parameters('storageName'), '.blob.core.windows.net/', variables('vmStorageAccountContainerName'), '/', variables('sqlVMSettings').osdisk, copyindex(1),'.vhd')]"
+              "uri": "[concat('http://', parameters('prmStorageName'), '.blob.core.windows.net/', variables('vmStorageAccountContainerName'), '/', variables('sqlVMSettings').osdisk, copyindex(1),'.vhd')]"
             },
             "caching": "ReadWrite",
             "createOption": "FromImage"
@@ -432,7 +572,7 @@
           "dataDisks": [
             {
               "vhd": {
-                "uri": "[concat('http://', parameters('storageName'), '.blob.core.windows.net/', variables('vmStorageAccountContainerName'), '/', variables('sqlVMSettings').datadisk, copyindex(1),'-1','.vhd')]"
+                "uri": "[concat('http://', parameters('prmStorageName'), '.blob.core.windows.net/', variables('vmStorageAccountContainerName'), '/', variables('sqlVMSettings').datadisk, copyindex(1),'-1','.vhd')]"
               },
               "name": "[concat(variables('sqlVMSettings').datadisk,copyindex(1),'-data-disk1')]",
               "diskSizeGB": "127",
@@ -441,7 +581,7 @@
             },
             {
               "vhd": {
-                "uri": "[concat('http://', parameters('storageName'), '.blob.core.windows.net/', variables('vmStorageAccountContainerName'), '/', variables('sqlVMSettings').datadisk, copyindex(1),'-2','.vhd')]"
+                "uri": "[concat('http://', parameters('prmStorageName'), '.blob.core.windows.net/', variables('vmStorageAccountContainerName'), '/', variables('sqlVMSettings').datadisk, copyindex(1),'-2','.vhd')]"
               },
               "name": "[concat(variables('sqlVMSettings').datadisk,copyindex(1),'-data-disk2')]",
               "diskSizeGB": "127",
