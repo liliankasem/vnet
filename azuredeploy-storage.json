@@ -4,7 +4,7 @@
   "parameters": {
     "stdStorageName": {
       "type": "string",
-      "defaultValue": "testvnetstoragestd",
+      "defaultValue": "gigglesstorage93",
       "metadata": {
         "description": "Name for simple storage account."
       }
@@ -20,7 +20,7 @@
     },
     "prmStorageName": {
       "type": "string",
-      "defaultValue": "testvnetstorageprm",
+      "defaultValue": "gigglesstorage93prm",
       "metadata": {
         "description": "Name for simple storage account."
       }

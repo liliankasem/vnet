@@ -3,13 +3,13 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "stdStorageName": {
-      "value": "testvnetstoragestd"
+      "value": "gigglesstorage93"
     },
     "stdStorageType": {
       "value": "Standard_LRS"
     },
     "prmStorageName": {
-      "value": "testvnetstorageprm"
+      "value": "gigglesstorage93prm"
     },
     "prmStorageType": {
       "value": "Premium_LRS"
