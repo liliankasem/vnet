@@ -187,7 +187,7 @@
       "adminUsername": "adminuser",
       "adminPassword": "adminP@ssw0rd",
       "publisher": "MicrosoftSQLServer",
-      "offer": "SQL2014SP1-WS2012R2",
+      "offer": "SQL2014SP2-WS2012R2",
       "sku": "Standard",
       "version": "latest",
       "vmName": "SQL",
