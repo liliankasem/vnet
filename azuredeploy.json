@@ -2,6 +2,13 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
+    "fwCount": {
+      "type": "int",
+      "defaultValue": 1,
+      "metadata": {
+        "description": "Number of FW VMs to be deployed to the DMZ subnet."
+      }
+    },
     "webCount": {
       "type": "int",
       "defaultValue": 2,
@@ -16,16 +23,9 @@
         "description": "Number of VMs to be deployed to the back end subnet."
       }
     },
-    "fwCount": {
-      "type": "int",
-      "defaultValue": 1,
-      "metadata": {
-        "description": "Number of FW VMs to be deployed to the DMZ subnet."
-      }
-    },
     "vnetName": {
       "type": "string",
-      "defaultValue": "TestVNet",
+      "defaultValue": "VNet",
       "metadata": {
         "description": "Name for the new VNet."
       }
@@ -95,7 +95,7 @@
     },
     "stdStorageName": {
       "type": "string",
-      "defaultValue": "gigglesstorage93",
+      "defaultValue": "storagestd",
       "metadata": {
         "description": "Name for simple storage account."
       }
@@ -114,7 +114,7 @@
     },
     "prmStorageName": {
       "type": "string",
-      "defaultValue": "gigglesstorage93prm",
+      "defaultValue": "storageprm",
       "metadata": {
         "description": "Name for simple storage account."
       }
@@ -216,9 +216,19 @@
           "uri": "[concat(variables('templateBaseUrl'),'azuredeploy-storage.json')]",
           "contentVersion": "1.0.0.0"
         },
-        "parametersLink": {
-          "uri": "[concat(variables('templateBaseUrl'),'azuredeploy-storage.parameters.json')]",
-          "contentVersion": "1.0.0.0"
+        "parameters": {
+          "stdStorageName": {
+            "value": "[parameters('stdStorageName')]"
+          },
+          "stdStorageType": {
+            "value": "[parameters('stdStorageType')]"
+          },
+          "prmStorageName": {
+            "value": "[parameters('prmStorageName')]"
+          },
+          "prmStorageType": {
+            "value": "[parameters('prmStorageType')]"
+          }
         }
       }
     },
@@ -232,9 +242,46 @@
           "uri": "[concat(variables('templateBaseUrl'),'azuredeploy-vnet-nsg-udr.json')]",
           "contentVersion": "1.0.0.0"
         },
-        "parametersLink": {
-          "uri": "[concat(variables('templateBaseUrl'),'azuredeploy-vnet-nsg-udr.parameters.json')]",
-          "contentVersion": "1.0.0.0"
+        "parameters": {
+          "vnetName": {
+            "value": "[parameters('vnetName')]"
+          },
+          "vnetPrefix": {
+            "value": "[parameters('vnetPrefix')]"
+          },
+          "dmzSubnetName": {
+            "value": "[parameters('dmzSubnetName')]"
+          },
+          "dmzSubnetPrefix": {
+            "value": "[parameters('dmzSubnetPrefix')]"
+          },
+          "frontEndSubnetName": {
+            "value": "[parameters('frontEndSubnetName')]"
+          },
+          "frontEndSubnetPrefix": {
+            "value": "[parameters('frontEndSubnetPrefix')]"
+          },
+          "backEndSubnetName": {
+            "value": "[parameters('backEndSubnetName')]"
+          },
+          "backEndSubnetPrefix": {
+            "value": "[parameters('backEndSubnetPrefix')]"
+          },
+          "frontEndNSGName": {
+            "value": "[parameters('frontEndNSGName')]"
+          },
+          "backEndNSGName": {
+            "value": "[parameters('backEndNSGName')]"
+          },
+          "vmaIpAddress": {
+            "value": "[parameters('vmaIpAddress')]"
+          },
+          "frontEndRouteTableName": {
+            "value": "[parameters('frontEndRouteTableName')]"
+          },
+          "backEndRouteTableName": {
+            "value": "[parameters('backEndRouteTableName')]"
+          }
         }
       }
     },

@@ -4,7 +4,7 @@
   "parameters": {
     "vnetName": {
       "type": "string",
-      "defaultValue": "TestVNet",
+      "defaultValue": "VNet",
       "metadata": {
         "description": "Name for the new VNet."
       }
@@ -92,10 +92,9 @@
       "metadata": {
         "description": "Name for back end subnet route table."
       }
-    }    
+    }
   },
-  "resources": [
-    {
+  "resources": [{
       "apiVersion": "2015-06-15",
       "type": "Microsoft.Network/networkSecurityGroups",
       "name": "[parameters('backEndNSGName')]",
@@ -104,8 +103,7 @@
         "displayName": "NSG - Remote Access"
       },
       "properties": {
-        "securityRules": [
-          {
+        "securityRules": [{
             "name": "allow-frontend",
             "properties": {
               "description": "Allow FE Subnet",
@@ -160,8 +158,7 @@
         "displayName": "NSG - Front End"
       },
       "properties": {
-        "securityRules": [
-          {
+        "securityRules": [{
             "name": "rdp-rule",
             "properties": {
               "description": "Allow RDP",
@@ -215,16 +212,14 @@
         "displayName": "Route Table - Back End"
       },
       "properties": {
-        "routes": [
-          {
-            "name": "RouteToFrontEnd",
-            "properties": {
-              "addressPrefix": "[parameters('frontEndSubnetPrefix')]",
-              "nextHopType": "VirtualAppliance",
-              "nextHopIpAddress": "[parameters('vmaIpAddress')]"
-            }
+        "routes": [{
+          "name": "RouteToFrontEnd",
+          "properties": {
+            "addressPrefix": "[parameters('frontEndSubnetPrefix')]",
+            "nextHopType": "VirtualAppliance",
+            "nextHopIpAddress": "[parameters('vmaIpAddress')]"
           }
-        ]
+        }]
       }
     },
     {
@@ -236,16 +231,14 @@
         "displayName": "UDR - FrontEnd"
       },
       "properties": {
-        "routes": [
-          {
-            "name": "RouteToBackEnd",
-            "properties": {
-              "addressPrefix": "[parameters('backEndSubnetPrefix')]",
-              "nextHopType": "VirtualAppliance",
-              "nextHopIpAddress": "[parameters('vmaIpAddress')]"
-            }
+        "routes": [{
+          "name": "RouteToBackEnd",
+          "properties": {
+            "addressPrefix": "[parameters('backEndSubnetPrefix')]",
+            "nextHopType": "VirtualAppliance",
+            "nextHopIpAddress": "[parameters('vmaIpAddress')]"
           }
-        ]
+        }]
       }
     },
     {
@@ -268,8 +261,7 @@
             "[parameters('vnetPrefix')]"
           ]
         },
-        "subnets": [
-          {
+        "subnets": [{
             "name": "[parameters('dmzSubnetName')]",
             "properties": {
               "addressPrefix": "[parameters('dmzSubnetPrefix')]"
@@ -283,7 +275,7 @@
                 "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('frontEndNSGName'))]"
               },
               "routeTable": {
-                  "id": "[resourceId('Microsoft.Network/routeTables', parameters('frontEndRouteTableName'))]"
+                "id": "[resourceId('Microsoft.Network/routeTables', parameters('frontEndRouteTableName'))]"
               }
             }
           },
@@ -295,7 +287,7 @@
                 "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('backEndNSGName'))]"
               },
               "routeTable": {
-                  "id": "[resourceId('Microsoft.Network/routeTables', parameters('backEndRouteTableName'))]"
+                "id": "[resourceId('Microsoft.Network/routeTables', parameters('backEndRouteTableName'))]"
               }
             }
           }
@@ -303,4 +295,4 @@
       }
     }
   ]
-  }
+}
