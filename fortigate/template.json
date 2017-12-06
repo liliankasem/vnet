@@ -362,10 +362,6 @@
             "name": "SettingUpVirtualNetwork",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2015-01-01",
-            "dependsOn": [
-                "UpdateNIC1",
-                "UpdateNIC2"
-            ],
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
