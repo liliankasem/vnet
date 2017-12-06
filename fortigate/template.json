@@ -184,8 +184,7 @@
         "updateIPURI": "[concat(parameters('ArtifactsBaseURI'),'/update-nic.json')]",
         "virtualNetworkSetupURL": "[concat(parameters('ArtifactsBaseURI'),'/vnetsetup.json')]"
     },
-    "resources": [
-        {
+    "resources": [{
             "type": "Microsoft.Compute/availabilitySets",
             "name": "[variables('compute_AvailabilitySet_FG_Name')]",
             "apiVersion": "2017-03-30",
@@ -213,8 +212,7 @@
                         "[parameters('vnetAddressPrefix')]"
                     ]
                 },
-                "subnets": [
-                    {
+                "subnets": [{
                         "name": "[parameters('Subnet1Name')]",
                         "properties": {
                             "addressPrefix": "[parameters('Subnet1Prefix')]"
@@ -254,17 +252,15 @@
                 "[parameters('vnetName')]"
             ],
             "properties": {
-                "ipConfigurations": [
-                    {
-                        "name": "ipconfig1",
-                        "properties": {
-                            "privateIPAllocationMethod": "Dynamic",
-                            "subnet": {
-                                "id": "[variables('subnet1Ref')]"
-                            }
+                "ipConfigurations": [{
+                    "name": "ipconfig1",
+                    "properties": {
+                        "privateIPAllocationMethod": "Dynamic",
+                        "subnet": {
+                            "id": "[variables('subnet1Ref')]"
                         }
                     }
-                ],
+                }],
                 "enableIPForwarding": false
             }
         },
@@ -280,17 +276,15 @@
                 "[parameters('vnetName')]"
             ],
             "properties": {
-                "ipConfigurations": [
-                    {
-                        "name": "ipconfig1",
-                        "properties": {
-                            "privateIPAllocationMethod": "Dynamic",
-                            "subnet": {
-                                "id": "[variables('subnet2Ref')]"
-                            }
+                "ipConfigurations": [{
+                    "name": "ipconfig1",
+                    "properties": {
+                        "privateIPAllocationMethod": "Dynamic",
+                        "subnet": {
+                            "id": "[variables('subnet2Ref')]"
                         }
                     }
-                ],
+                }],
                 "enableIPForwarding": false
             }
         },
@@ -368,6 +362,10 @@
             "name": "SettingUpVirtualNetwork",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2015-01-01",
+            "dependsOn": [
+                "UpdateNIC1",
+                "UpdateNIC2"
+            ],
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
@@ -458,17 +456,14 @@
                     "osDisk": {
                         "createOption": "FromImage"
                     },
-                    "dataDisks": [
-                        {
-                            "diskSizeGB": "30",
-                            "lun": 0,
-                            "createOption": "Empty"
-                        }
-                    ]
+                    "dataDisks": [{
+                        "diskSizeGB": "30",
+                        "lun": 0,
+                        "createOption": "Empty"
+                    }]
                 },
                 "networkProfile": {
-                    "networkInterfaces": [
-                        {
+                    "networkInterfaces": [{
                             "properties": {
                                 "primary": true
                             },
