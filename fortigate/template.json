@@ -184,56 +184,7 @@
         "updateIPURI": "[concat(parameters('ArtifactsBaseURI'),'/update-nic.json')]",
         "virtualNetworkSetupURL": "[concat(parameters('ArtifactsBaseURI'),'/vnetsetup.json')]"
     },
-    "resources": [{
-            "name": "SettingUpVirtualNetwork",
-            "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2015-01-01",
-            "properties": {
-                "mode": "Incremental",
-                "templateLink": {
-                    "uri": "[variables('virtualNetworkSetupURL')]",
-                    "contentVersion": "1.0.0.0"
-                },
-                "parameters": {
-                    "vnetNewOrExisting": {
-                        "value": "[parameters('vnetNewOrExisting')]"
-                    },
-                    "vnetName": {
-                        "value": "[parameters('vnetName')]"
-                    },
-                    "location": {
-                        "value": "[parameters('location')]"
-                    },
-                    "vnetAddressPrefix": {
-                        "value": "[parameters('vnetAddressPrefix')]"
-                    },
-                    "subnet1Name": {
-                        "value": "[parameters('Subnet1Name')]"
-                    },
-                    "subnet1AddressPrefix": {
-                        "value": "[parameters('Subnet1Prefix')]"
-                    },
-                    "subnet2Name": {
-                        "value": "[parameters('Subnet2Name')]"
-                    },
-                    "subnet2AddressPrefix": {
-                        "value": "[parameters('Subnet2Prefix')]"
-                    },
-                    "vnetResourceGroup": {
-                        "value": "[parameters('vnetResourceGroup')]"
-                    },
-                    "routeTable1Name": {
-                        "value": "[variables('routeTable1Name')]"
-                    },
-                    "routeTable2Name": {
-                        "value": "[variables('routeTable2Name')]"
-                    },
-                    "FortinetTags": {
-                        "value": "[parameters('FortinetTags')]"
-                    }
-                }
-            }
-        },
+    "resources": [
         {
             "type": "Microsoft.Compute/availabilitySets",
             "name": "[variables('compute_AvailabilitySet_FG_Name')]",
@@ -248,6 +199,34 @@
             },
             "sku": {
                 "name": "Aligned"
+            }
+        },
+        {
+            "condition": "[equals(parameters('vnetNewOrExisting'), 'new')]",
+            "type": "Microsoft.Network/virtualNetworks",
+            "apiVersion": "2017-09-01",
+            "name": "[parameters('vnetName')]",
+            "location": "[parameters('location')]",
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "[parameters('vnetAddressPrefix')]"
+                    ]
+                },
+                "subnets": [
+                    {
+                        "name": "[parameters('Subnet1Name')]",
+                        "properties": {
+                            "addressPrefix": "[parameters('Subnet1Prefix')]"
+                        }
+                    },
+                    {
+                        "name": "[parameters('Subnet2Name')]",
+                        "properties": {
+                            "addressPrefix": "[parameters('Subnet2Prefix')]"
+                        }
+                    }
+                ]
             }
         },
         {
@@ -275,15 +254,17 @@
                 "[parameters('vnetName')]"
             ],
             "properties": {
-                "ipConfigurations": [{
-                    "name": "ipconfig1",
-                    "properties": {
-                        "privateIPAllocationMethod": "Dynamic",
-                        "subnet": {
-                            "id": "[variables('subnet1Ref')]"
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig1",
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "subnet": {
+                                "id": "[variables('subnet1Ref')]"
+                            }
                         }
                     }
-                }],
+                ],
                 "enableIPForwarding": false
             }
         },
@@ -299,15 +280,17 @@
                 "[parameters('vnetName')]"
             ],
             "properties": {
-                "ipConfigurations": [{
-                    "name": "ipconfig1",
-                    "properties": {
-                        "privateIPAllocationMethod": "Dynamic",
-                        "subnet": {
-                            "id": "[variables('subnet2Ref')]"
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig1",
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "subnet": {
+                                "id": "[variables('subnet2Ref')]"
+                            }
                         }
                     }
-                }],
+                ],
                 "enableIPForwarding": false
             }
         },
@@ -382,6 +365,62 @@
             }
         },
         {
+            "name": "SettingUpVirtualNetwork",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2015-01-01",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('virtualNetworkSetupURL')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "vnetNewOrExisting": {
+                        "value": "[parameters('vnetNewOrExisting')]"
+                    },
+                    "vnetName": {
+                        "value": "[parameters('vnetName')]"
+                    },
+                    "location": {
+                        "value": "[parameters('location')]"
+                    },
+                    "vnetAddressPrefix": {
+                        "value": "[parameters('vnetAddressPrefix')]"
+                    },
+                    "subnet1Name": {
+                        "value": "[parameters('Subnet1Name')]"
+                    },
+                    "subnet1AddressPrefix": {
+                        "value": "[parameters('Subnet1Prefix')]"
+                    },
+                    "subnet1NextHop": {
+                        "value": "[reference(concat('Microsoft.Network/networkInterfaces/', variables('network_NIC_fg11_Name'))).ipConfigurations[0].properties.privateIPAddress]"
+                    },
+                    "subnet2Name": {
+                        "value": "[parameters('Subnet2Name')]"
+                    },
+                    "subnet2AddressPrefix": {
+                        "value": "[parameters('Subnet2Prefix')]"
+                    },
+                    "subnet2NextHop": {
+                        "value": "[reference(concat('Microsoft.Network/networkInterfaces/', variables('network_NIC_fg11_Name'))).ipConfigurations[0].properties.privateIPAddress]"
+                    },
+                    "vnetResourceGroup": {
+                        "value": "[parameters('vnetResourceGroup')]"
+                    },
+                    "routeTable1Name": {
+                        "value": "[variables('routeTable1Name')]"
+                    },
+                    "routeTable2Name": {
+                        "value": "[variables('routeTable2Name')]"
+                    },
+                    "FortinetTags": {
+                        "value": "[parameters('FortinetTags')]"
+                    }
+                }
+            }
+        },
+        {
             "type": "Microsoft.Compute/virtualMachines",
             "name": "[parameters('FortiGateName')]",
             "apiVersion": "2017-03-30",
@@ -419,14 +458,17 @@
                     "osDisk": {
                         "createOption": "FromImage"
                     },
-                    "dataDisks": [{
-                        "diskSizeGB": "30",
-                        "lun": 0,
-                        "createOption": "Empty"
-                    }]
+                    "dataDisks": [
+                        {
+                            "diskSizeGB": "30",
+                            "lun": 0,
+                            "createOption": "Empty"
+                        }
+                    ]
                 },
                 "networkProfile": {
-                    "networkInterfaces": [{
+                    "networkInterfaces": [
+                        {
                             "properties": {
                                 "primary": true
                             },

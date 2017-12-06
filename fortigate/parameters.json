@@ -3,7 +3,7 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "FortiGateName": {
-            "value": "DWRInsightFG"
+            "value": "InsightSharedFG"
         },
         "adminUsername": {
             "value": "fgadmin1"
@@ -21,7 +21,7 @@
             "value": "Standard_F2s"
         },
         "publicIPAddressName": {
-            "value": "publicip-fortigate"
+            "value": "InsightSharedFG-IP"
         },
         "publicIPAddressType": {
             "value": "Static"
@@ -30,7 +30,7 @@
             "value": "new"
         },
         "publicIPResourceGroup": {
-            "value": "DWRInsightfgRG"
+            "value": "InsightSharedFGRG"
         },
         "location": {
             "value": "westus"
@@ -39,25 +39,25 @@
             "value": "new"
         },
         "vnetName": {
-            "value": "FortigateProtectedVNet"
+            "value": "InsightFortigateVNet"
         },
         "vnetResourceGroup": {
-            "value": "DWRInsightfgRG"
+            "value": "InsightSharedFGRG"
         },
         "vnetAddressPrefix": {
-            "value": "10.0.0.0/16"
+            "value": "10.80.0.0/16"
         },
         "Subnet1Name": {
             "value": "PublicFacingSubnet"
         },
         "Subnet1Prefix": {
-            "value": "10.0.0.0/24"
+            "value": "10.80.0.0/24"
         },
         "Subnet2Name": {
             "value": "InsideSubnet"
         },
         "Subnet2Prefix": {
-            "value": "10.0.1.0/24"
+            "value": "10.80.254.8/29"
         }
     }
 }
