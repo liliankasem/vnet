@@ -46,6 +46,12 @@
             "metadata": {
                 "description": "Subnet 2 Prefix in CIDR notation (if using public IP, this will be the 'WAN' or external port), example: 10.2.2.0/24"
             }
+        },
+        "location": {
+            "type": "string",
+            "metadata": {
+                "description": "location - same as above"
+            }
         }
     },
     "resources": [
