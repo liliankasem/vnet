@@ -1,0 +1,67 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "vnetNewOrExisting": {
+            "type": "string",
+            "defaultValue": "new",
+            "allowedValues": [
+                "new",
+                "existing"
+            ],
+            "metadata": {
+                "description": "Identify whether to use a new or existing vnet"
+            }
+        },
+        "Subnet1Name": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Subnet 1 Name"
+            }
+        },
+        "Subnet1Prefix": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Subnet 1 Prefix in CIDR notation (if using public IP, this will be the 'WAN' or external port), example: 10.2.1.0/24"
+            }
+        },
+        "Subnet2Name": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Subnet 2 Name"
+            }
+        },
+        "Subnet2Prefix": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Subnet 2 Prefix in CIDR notation (if using public IP, this will be the 'WAN' or external port), example: 10.2.2.0/24"
+            }
+        }
+    },
+    "resources": [
+        {
+            "condition": "[equals(parameters('vnetNewOrExisting'), 'existing')]",
+            "apiVersion": "2015-06-15",
+            "type": "Microsoft.Network/virtualNetworks/subnets",
+            "name": "[concat(parameters('vnetName'), '/', parameters('Subnet1Name'))]",
+            "location": "[parameters('location')]",
+            "properties": {
+                "addressPrefix": "[parameters('Subnet1Prefix')]"
+            }
+        },
+        {
+            "condition": "[equals(parameters('vnetNewOrExisting'), 'existing')]",
+            "apiVersion": "2015-06-15",
+            "type": "Microsoft.Network/virtualNetworks/subnets",
+            "name": "[concat(parameters('vnetName'), '/', parameters('Subnet2Name'))]",
+            "location": "[parameters('location')]",
+            "properties": {
+                "addressPrefix": "[parameters('Subnet2Prefix')]"
+            }
+        }
+    ]
+}
