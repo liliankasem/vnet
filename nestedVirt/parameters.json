@@ -1,0 +1,39 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "virtualMachines_win2016nvrt_name": {
+            "value": null
+        },
+        "networkInterfaces_nic_primary_name": {
+            "value": null
+        },
+        "virtualNetworks_vnet_nestedvirt_name": {
+            "value": null
+        },
+        "networkInterfaces_win2016nvrt506_name": {
+            "value": null
+        },
+        "publicIPAddresses_win2016nvrt_ip_name": {
+            "value": null
+        },
+        "storageAccounts_imagestoreinsightful_name": {
+            "value": null
+        },
+        "networkSecurityGroups_win2016nvrt_nsg_name": {
+            "value": null
+        },
+        "subnets_default_name": {
+            "value": null
+        },
+        "securityRules_default_allow_rdp_name": {
+            "value": null
+        },
+        "virtualMachines_win2016nvrt_id": {
+            "value": null
+        },
+        "virtualMachines_win2016nvrt_id_1": {
+            "value": null
+        }
+    }
+}
