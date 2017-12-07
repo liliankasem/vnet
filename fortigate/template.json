@@ -182,7 +182,8 @@
         "compute_AvailabilitySet_FG_Name": "[concat(parameters('FortiGateName'),'-AvailabilitySet-',uniquestring(deployment().name))]",
         "compute_AvailabilitySet_FG_Id": "[resourceId('Microsoft.Compute/availabilitySets', variables('compute_AvailabilitySet_FG_Name'))]",
         "updateIPURI": "[concat(parameters('ArtifactsBaseURI'),'/update-nic.json')]",
-        "virtualNetworkSetupURL": "[concat(parameters('ArtifactsBaseURI'),'/vnetsetup.json')]"
+        "virtualNetworkSetupURL": "[concat(parameters('ArtifactsBaseURI'),'/vnetsetup.json')]",
+        "deploySubnets": "https://raw.githubusercontent.com/liliankasem/vnet/master/subnet/subnet.json"
     },
     "resources": [{
             "type": "Microsoft.Compute/availabilitySets",
@@ -228,6 +229,43 @@
             }
         },
         {
+            "condition": "[equals(parameters('vnetNewOrExisting'), 'existing')]",
+            "apiVersion": "2017-05-10",
+            "name": "subnetDeployment",
+            "type": "Microsoft.Resources/deployments",
+            "resourceGroup": "[parameters('vnetResourceGroup')]",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('deploySubnets')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "location": {
+                        "value": "[parameters('location')]"
+                    },
+                    "vnetNewOrExisting": {
+                        "value": "[parameters('vnetNewOrExisting')]"
+                    },
+                    "vnetName": {
+                        "value": "[parameters('vnetName')]"
+                    },
+                    "Subnet1Name": {
+                        "value": "[parameters('Subnet1Name')]"
+                    },
+                    "Subnet1Prefix": {
+                        "value": "[parameters('Subnet1Prefix')]"
+                    },
+                    "Subnet2Name": {
+                        "value": "[parameters('Subnet2Name')]"
+                    },
+                    "Subnet2Prefix": {
+                        "value": "[parameters('Subnet2Prefix')]"
+                    }
+                }
+            }
+        },
+        {
             "condition": "[equals(parameters('publicIPNewOrExistingOrNone'), 'new')]",
             "type": "Microsoft.Network/publicIPAddresses",
             "apiVersion": "2017-09-01",
@@ -249,7 +287,8 @@
             "name": "[variables('network_NIC_fg11_Name')]",
             "location": "[parameters('location')]",
             "dependsOn": [
-                "[variables('vnetID')]"
+                "[parameters('vnetName')]",
+                "subnetDeployment"
             ],
             "properties": {
                 "ipConfigurations": [{
@@ -273,7 +312,8 @@
             "name": "[variables('network_NIC_fg12_Name')]",
             "location": "[parameters('location')]",
             "dependsOn": [
-                "[variables('vnetID')]"
+                "[parameters('vnetName')]",
+                "subnetDeployment"
             ],
             "properties": {
                 "ipConfigurations": [{
@@ -293,8 +333,8 @@
             "name": "UpdateNIC1",
             "apiVersion": "2015-01-01",
             "dependsOn": [
-                "[variables('vnetID')]",
-                "[variables('network_NIC_fg11_Name')]"
+                "[variables('network_NIC_fg11_Name')]",
+                "subnetDeployment"
             ],
             "properties": {
                 "mode": "Incremental",
@@ -329,8 +369,8 @@
             "name": "UpdateNIC2",
             "apiVersion": "2015-01-01",
             "dependsOn": [
-                "[variables('vnetID')]",
-                "[variables('network_NIC_fg12_Name')]"
+                "[variables('network_NIC_fg12_Name')]",
+                "subnetDeployment"
             ],
             "properties": {
                 "mode": "Incremental",
@@ -364,6 +404,10 @@
             "name": "SettingUpVirtualNetwork",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2015-01-01",
+            "dependsOn": [
+                "UpdateNIC1",
+                "UpdateNIC2"
+            ],
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {

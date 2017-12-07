@@ -2,6 +2,12 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
+        "location": {
+            "type": "string",
+            "metadata": {
+                "description": "location - same as above"
+            }
+        },
         "vnetNewOrExisting": {
             "type": "string",
             "defaultValue": "new",
@@ -45,12 +51,6 @@
             "defaultValue": "",
             "metadata": {
                 "description": "Subnet 2 Prefix in CIDR notation (if using public IP, this will be the 'WAN' or external port), example: 10.2.2.0/24"
-            }
-        },
-        "location": {
-            "type": "string",
-            "metadata": {
-                "description": "location - same as above"
             }
         }
     },
